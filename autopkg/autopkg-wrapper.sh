@@ -1,11 +1,11 @@
 #!/bin/sh
 
-# autopkg automation script which, when run with no arguments, checks 
+# autopkg automation script which, when run with no arguments, checks current run's output against a default output and sends the output to a user if there are differences
 
 # adjust the following variables for your particular configuration
-recipe_list="AdobeFlashPlayer.munki AdobeReader.munki Evernote.munki Firefox.munki GoogleChrome.munki GoogleEarth.munki MSOffice2011Updates.munki OracleJava7.munki TextWrangler.munki VLC.munki Facter.munki Puppet.munki munkitools.munki MakeCatalogs.munki"
-mail_recipient="skaiser@northmontschools.net"
-autopkg_user="techdept"
+recipe_list="AdobeFlashPlayer.munki MakeCatalogs.munki"
+mail_recipient="you@yourdomain.net"
+autopkg_user="autopkg"
 
 # don't change anything below this line
 
@@ -34,9 +34,11 @@ elif [ "${1}" == "initialize" ]; then
   echo "autopkg user: ${autopkg_user}"
   echo "user home dir: ${user_home_dir}"
 
+  # make sure autopkg folder exists in autopkg_user's Documents folder
   if [ ! -d "${user_home_dir}"/Documents/autopkg ]; then
-    mkdir "${user_home_dir}"/Documents/autopkg
+    /bin/mkdir -p "${user_home_dir}"/Documents/autopkg
   fi
+
   # run autopkg twice, once to get any updates and the second to get a log indicating nothing changed
   $logger "autopkg initial run to temporary log location"
   echo "for this autopkg run, output will be shown"
