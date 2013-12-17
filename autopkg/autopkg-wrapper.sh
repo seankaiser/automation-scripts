@@ -20,12 +20,6 @@ if [ "${1}" == "help" ]; then
   echo "(initializes a new default log for notification checking)"
   exit 0
 
-elif [ ! -f "${user_home_dir}"/Documents/autopkg/autopkg.out ]; then
-  # default log doesn't exist, so tell user to run this script in initialization mode and exit
-  echo "ERROR: default log does not exist, please run this script with initialize argument to initialize the log"
-  exit -1
-
-
 elif [ "${1}" == "initialize" ]; then
   # initialize default log for automated run to check against for notification if things have changed
   $logger "starting autopkg to initialize a new default output log"
@@ -49,6 +43,11 @@ elif [ "${1}" == "initialize" ]; then
   /usr/local/bin/autopkg run ${recipe_list} 2>&1 > "${user_home_dir}"/Documents/autopkg/autopkg.out
 
   $logger "finished autopkg"
+
+elif [ ! -f "${user_home_dir}"/Documents/autopkg/autopkg.out ]; then
+  # default log doesn't exist, so tell user to run this script in initialization mode and exit
+  echo "ERROR: default log does not exist, please run this script with initialize argument to initialize the log"
+  exit -1
 
 else
   # default is to just run autopkg and email log if something changed from normal
