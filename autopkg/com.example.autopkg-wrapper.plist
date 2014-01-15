@@ -157,5 +157,7 @@
 	</array>
 	<key>UserName</key>
 	<string>autopkg</string>
+	<key>AbandonProcessGroup</key>
+	<true/>
 </dict>
 </plist>
