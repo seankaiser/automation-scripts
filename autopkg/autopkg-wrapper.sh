@@ -53,6 +53,7 @@ elif [ ! -f "${user_home_dir}"/Documents/autopkg/autopkg.out ]; then
 else
   # default is to just run autopkg and email log if something changed from normal
   $logger "starting autopkg"
+  /usr/local/bin/autopkg repo-update all
   /usr/local/bin/autopkg run ${recipe_list} 2>&1 > /tmp/autopkg.out
 
   $logger "finished autopkg"
