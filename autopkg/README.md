@@ -1,0 +1,1 @@
+This is a little script I wrote to be notified (via email) when something changes when autopkg runs. You can find more info [on my blog](http://seankaiser.com/blog/2013/12/16/autopkg-change-notifications/), including how to configure the variables to get things running in your environment.
