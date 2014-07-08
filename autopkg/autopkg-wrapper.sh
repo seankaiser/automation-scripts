@@ -3,6 +3,7 @@
 # autopkg automation script which, when run with no arguments, checks current run's output against a default output and sends the output to a user if there are differences
 
 # adjust the following variables for your particular configuration
+# you should manually run the script with the initialize option if you change the recipe list, since that will change the output.
 recipe_list="AdobeFlashPlayer.munki MakeCatalogs.munki"
 mail_recipient="you@yourdomain.net"
 autopkg_user="autopkg"
@@ -52,6 +53,7 @@ elif [ ! -f "${user_home_dir}"/Documents/autopkg/autopkg.out ]; then
 else
   # default is to just run autopkg and email log if something changed from normal
   $logger "starting autopkg"
+  /usr/local/bin/autopkg repo-update all
   /usr/local/bin/autopkg run ${recipe_list} 2>&1 > /tmp/autopkg.out
 
   $logger "finished autopkg"
