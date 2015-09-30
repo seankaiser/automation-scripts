@@ -1,1 +1,4 @@
-This is a little script I wrote to be notified (via email) when something changes when autopkg runs. You can find more info [on my blog](http://seankaiser.com/blog/2013/12/16/autopkg-change-notifications/), including how to configure the variables to get things running in your environment. If you need some help getting things set up, feel free to ping me on twitter at [@seankaiser](http://twitter.com/seankaiser).
+This is a fork of Sean Kaiser's autopkg-wrapper script.
+
+I've added a couple of checks (like ensuring makecatalogs.munki is run at the end of each autopkg run), in addition to implementing
+the ability to use a text file as an input.
