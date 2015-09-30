@@ -1,18 +1,57 @@
 #!/bin/sh
 
-# autopkg automation script which, when run with no arguments, checks current run's output against a default output and sends the output to a user if there are differences
+# autopkg automation script which, when run with no arguments, checks current run's output against a
+# default output and sends the output to a user if there are differences
 
 # adjust the following variables for your particular configuration
-# you should manually run the script with the initialize option if you change the recipe list, since that will change the output.
-recipe_list="AdobeFlashPlayer.munki MakeCatalogs.munki"
-mail_recipient="you@yourdomain.net"
-autopkg_user="autopkg"
+# you should manually run the script with the initialize option if you change the recipe list,
+# since that will change the output.
+# Note: use white space as a separator if providing a written list
+# This is a fork of Sean Kaiser's script: https://github.com/seankaiser/automation-scripts
+# I've added a couple of checks and the ability to use a file as an input to autopkg
+
+# Antti Pettinen
+# TUTMac/Tampere University of Technology
+# @apettinen
+
+# use a file or a written list of recipes
+recipe_list="/Path/To/Recipe/List/File.txt"
+# the email address the reports are sent to
+mail_recipient="username@mail.box"
+# user to run autopkg as
+autopkg_user="username"
+# change this if autopkg is not in default location
+autopkg="/usr/local/bin/autopkg"
 
 # don't change anything below this line
 
 # define logger behavior
 logger="/usr/bin/logger -t autopkg-wrapper"
 user_home_dir=`dscl . -read /Users/${autopkg_user} NFSHomeDirectory | awk '{ print $2 }'`
+
+
+# check if autopkg exists in defined location
+if [ ! -f ${autopkg} ]; then
+	$logger "no autopkg found, check autopkg location"
+	exit 1
+fi
+
+# check whether $recipe_list is file or a written list
+if [[ -f ${recipe_list} ]]; then
+	# let's check that makecatalogs.munki is the last item in the list (otherwise script will
+	# keep on adding packages to munki repo, unless someone manually runs makecatalogs between runs)
+	if [ "awk 'NF{p=$0}END{print p}' ${recipe_list}" != "makecatalogs.munki"]; then
+		echo "makecatalogs.munki" >> ${recipe_list}
+	fi
+	recipes="--recipe-list ${recipe_list}"
+else
+	# and the same if the recipe_list is a written list of recipes instead of a file
+	if [[ ${recipe_list##*\ } != "makecatalogs.munki" ]]; then
+		# appending to recipe_list instead of recipes, as recipe_list is used later
+		recipe_list="${recipe_list} makecatalogs.munki"
+	fi
+	recipes=${recipe_list}
+fi
 
 # run autopkg
 if [ "${1}" == "help" ]; then
@@ -37,11 +76,11 @@ elif [ "${1}" == "initialize" ]; then
   # run autopkg twice, once to get any updates and the second to get a log indicating nothing changed
   $logger "autopkg initial run to temporary log location"
   echo "for this autopkg run, output will be shown"
-  /usr/local/bin/autopkg run -v ${recipe_list} 2>&1
+  $autopkg run -v ${recipes} 2>&1
 
   $logger "autopkg initial run to saved log location"
   echo "for this autopkg run, output will not be shown, but rather saved to default log location (${user_home_dir}/Documents/autopkg/autopkg.out"
-  /usr/local/bin/autopkg run ${recipe_list} 2>&1 > "${user_home_dir}"/Documents/autopkg/autopkg.out
+  $autopkg run ${recipes} 2>&1 > "${user_home_dir}"/Documents/autopkg/autopkg.out
 
   $logger "finished autopkg"
 
@@ -53,14 +92,14 @@ elif [ ! -f "${user_home_dir}"/Documents/autopkg/autopkg.out ]; then
 else
   # default is to just run autopkg and email log if something changed from normal
   $logger "starting autopkg"
-  /usr/local/bin/autopkg repo-update all
-  /usr/local/bin/autopkg run ${recipe_list} 2>&1 > /tmp/autopkg.out
+  $autopkg repo-update all
+  $autopkg run ${recipes} 2>&1 > /tmp/autopkg.out
 
   $logger "finished autopkg"
 
   # check output against the saved log and if differences exist, send current log to specified recipient
   if [ "`diff /tmp/autopkg.out \"${user_home_dir}\"/Documents/autopkg/autopkg.out`" != "" ]; then
-    # there are differences from a "Nothing downloaded, packaged or imported" run... might be an update or an error
+    # there are differences from a "Nothing downloaded, packaged or imported" run... might be an update or an error - OR some recipies have changed, when run in verbose mode?
     $logger "sending autopkg log"
     /usr/bin/mail -s "autopkg log" ${mail_recipient}  < /tmp/autopkg.out
     $logger "sent autopkg log to {$mail_recipient}, `wc -l /tmp/autopkg.out | awk '{ print $1 }'` lines in log"
@@ -69,4 +108,3 @@ else
   fi
 fi
 exit 0
-

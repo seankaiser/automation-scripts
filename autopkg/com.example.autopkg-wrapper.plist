@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>Label</key>
-	<string>com.example.autopkg-wrapper</string>
+	<string>com.your.org.autopkg-wrapper</string>
 	<key>ProgramArguments</key>
 	<array>
 		<string>/usr/local/bin/autopkg-wrapper.sh</string>
@@ -156,7 +156,7 @@
 		</dict>
 	</array>
 	<key>UserName</key>
-	<string>autopkg</string>
+	<string>username</string>
 	<key>AbandonProcessGroup</key>
 	<true/>
 </dict>
